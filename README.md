@@ -77,8 +77,8 @@ The orchestration is deliberately hand-rolled. Trust-weighted lanes, citation gu
 ## Getting started
 
 ```bash
-git clone https://github.com/<you>/vera.git
-cd vera
+git clone https://github.com/meghanaRangarajan/OmniVera.git
+cd OmniVera
 
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e .

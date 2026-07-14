@@ -128,9 +128,47 @@ def build_index_from_disk(
     return {"chunks": len(chunks), "persist_dir": str(chroma_dir)}
 
 
+def resolve_transcripts_source() -> Path:
+    """Find the parsed-transcripts file to index.
+
+    Prefers the combined file at data/processed/transcripts.json. If that is
+    absent, falls back to the latest intake's parsed_transcripts.json, which is
+    what scripts/run_web_intake.py actually writes. This spares first-time users
+    a manual copy between the two locations.
+
+    Returns:
+        Path to an existing parsed-transcripts JSON file.
+
+    Raises:
+        FileNotFoundError: If neither location has a usable file.
+    """
+    if TRANSCRIPTS_JSON.exists():
+        return TRANSCRIPTS_JSON
+
+    from icp_agent.intake import get_latest_intake
+
+    intake = get_latest_intake(ROOT / "data" / "inputs")
+    if intake is not None and intake.parsed_transcripts_path is not None:
+        candidate = Path(intake.parsed_transcripts_path)
+        if candidate.exists():
+            log.info("Using parsed transcripts from latest intake: %s", intake.intake_id)
+            return candidate
+
+    raise FileNotFoundError(
+        f"No parsed transcripts found.\n"
+        f"  Looked in: {TRANSCRIPTS_JSON}\n"
+        f"  and in the latest intake under: {ROOT / 'data' / 'inputs'}\n\n"
+        f"Run `python scripts/run_web_intake.py` first to submit an intake and "
+        f"upload transcripts, or copy a parsed-transcripts JSON to "
+        f"{TRANSCRIPTS_JSON}.\n"
+        f"See docs/GETTING_STARTED.md for the expected transcript format."
+    )
+
+
 def main() -> None:
     try:
-        build_index_from_disk(TRANSCRIPTS_JSON, CHROMA_DIR)
+        source = resolve_transcripts_source()
+        build_index_from_disk(source, CHROMA_DIR)
     except FileNotFoundError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         sys.exit(1)

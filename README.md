@@ -98,15 +98,19 @@ REDDIT_USER_AGENT=
 
 ### Run it
 
-```bash
-python scripts/run_web_intake.py     # 1. submit an intake + upload transcripts
-python scripts/build_index.py        # 2. parse, chunk, embed, index
-python scripts/run_pipeline.py       # 3. synthesize the ICP
-python scripts/run_chat_server.py    # 4. chat with the persona
+The repo ships three synthetic interview transcripts, so this works on a fresh clone with no data of your own:
 
-# or, all of the above via the agentic orchestrator:
+```bash
+python scripts/load_samples.py       # 1. parse the sample interviews  (no API calls)
+python scripts/build_index.py        # 2. chunk, embed, index into ChromaDB
+python scripts/run_pipeline.py       # 3. synthesize the ICP with citations
+python scripts/run_chat_server.py    # 4. chat with the personas at localhost:5000
+
+# or all four as a single agentic loop:
 python scripts/run_agent.py
 ```
+
+To use your own data instead, `scripts/run_web_intake.py` opens an upload form. **The transcript parser is strict about format** — see [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) for the spec, the Reddit CSV columns, and troubleshooting.
 
 ### Tests
 
@@ -120,7 +124,7 @@ External APIs are mocked throughout — the suite makes no network calls.
 
 ## Data
 
-**This repo ships no research data.** Everything under `data/` is gitignored except directory placeholders. Bring your own transcripts, or use the synthetic **Garmin Roam** case study (a fictional sub-$300 Gen Z outdoor smartwatch) that the examples and fixtures are written against.
+**This repo ships no real research data.** Everything under `data/` is gitignored. What's in `samples/` is synthetic: three fictional interviews about **Garmin Roam**, an invented sub-$300 Gen Z outdoor smartwatch, plus a sample Reddit CSV. Enough to run the pipeline end to end and see what the output looks like.
 
 Real customer interviews are confidential by default. Keep them out of git.
 

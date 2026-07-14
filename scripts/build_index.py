@@ -30,7 +30,7 @@ CHROMA_DIR = ROOT / "data" / "processed" / "chroma"
 
 TEST_QUERIES: list[tuple[str, dict | None]] = [
     ("fit problems and earbuds falling out", None),
-    ("how people feel about Bose as a brand", None),
+    ("how people feel about Garmin as a brand", None),
     ("Gen Z frustrations with premium pricing", {"generation": "Gen Z"}),
     ("value means peace of mind and reliability", None),
 ]

@@ -36,7 +36,7 @@ EMBEDDING_MODEL = "text-embedding-3-small"
 
 VALIDATION_QUERIES: list[tuple[str, dict | None]] = [
     ("earbuds falling out during exercise or sweating", None),
-    ("Bose brand perception among young people", None),
+    ("Garmin brand perception among young people", None),
     ("price sensitivity and value for money", {"source_type": "reddit"}),
 ]
 

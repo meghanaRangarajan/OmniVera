@@ -204,8 +204,8 @@ def test_section_detection(tmp_path):
 
 def test_section_normalization(tmp_path):
     content = (
-        "5. BRAND PERCEPTION (for Current Bose User)\n"
-        "INTERVIEWER: What do you think of Bose?\n"
+        "5. BRAND PERCEPTION (for Current Garmin User)\n"
+        "INTERVIEWER: What do you think of Garmin?\n"
         "ALEX: They're premium.\n"
     )
     write_txt(tmp_path, content)
@@ -311,7 +311,7 @@ def test_wrap_up_section(tmp_path):
     content = (
         "5. BRAND PERCEPTIONS\n"
         "INT: What brands do you know?\n"
-        "ALEX: Sony and Bose.\n"
+        "ALEX: Apple and Suunto.\n"
         "6. WRAP-UP\n"
         "INT: Any final thoughts?\n"
         "ALEX: Nope, all good.\n"

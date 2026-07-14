@@ -133,7 +133,7 @@ def run_filtered_query(
 
 # Cross-source (two-stage)
 run_cross_source_query("1 — Fit problems", "earbuds keep falling out during workouts and exercise")
-run_cross_source_query("2 — Bose brand perception", "Bose feels like a brand for older people not for me")
+run_cross_source_query("2 — Garmin brand perception", "Garmin feels like a brand for older people not for me")
 run_cross_source_query("6 — Purchase decision", "how I decided which earbuds to buy research reviews decision")
 run_cross_source_query("7 — ANC as emotional need", "noise canceling headphones help me focus block out world anxiety")
 run_cross_source_query("8 — Vague query robustness", "good earbuds", transcript_top_k=3, reddit_top_k=2)

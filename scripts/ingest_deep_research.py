@@ -45,14 +45,14 @@ BATCH_SIZE = 100
 
 # Human-readable titles for known PDF stems; falls back to stem-derived title.
 _TITLE_MAP: dict[str, str] = {
-    "deep_research_report": "Gen Z Premium Wireless Earbuds Market and Bose Beat Launch Context",
+    "deep_research_report": "Gen Z Outdoor Smartwatch Market and Garmin Roam Launch Context",
 }
 
 _enc = tiktoken.get_encoding("cl100k_base")
 
 VALIDATION_QUERIES: list[str] = [
     "Gen Z price sensitivity and value perception",
-    "Bose brand perception among young buyers",
+    "Garmin brand perception among young buyers",
     "fit comfort unmet needs small ears",
     "Gen Z discovery and purchase journey social media",
     "messaging authenticity what works with Gen Z",
@@ -312,7 +312,7 @@ def chunk_section(
             Chunk(
                 id=cid,
                 text=text,
-                transcript_id="deep_research_bose_beat",
+                transcript_id="deep_research_garmin_roam",
                 interviewee_name="",
                 turn_ids=[],
                 metadata={

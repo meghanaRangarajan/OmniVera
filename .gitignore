@@ -31,3 +31,7 @@ data/inputs/*
 !data/chat/.gitkeep
 !data/logs/.gitkeep
 !data/inputs/.gitkeep
+
+# Staging copy for GitHub upload — not part of the repo
+github_upload/
+.private-terms

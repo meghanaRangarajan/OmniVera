@@ -504,7 +504,7 @@ def test_format_evidence_block_structure():
         },
         {
             "chunk_id": "def456",
-            "text": "Bose is expensive but worth it.",
+            "text": "Garmin is expensive but worth it.",
             "source_type": "reddit",
             "trust_weight": 0.6,
             "interviewee_name": "u_redditor",
@@ -523,7 +523,7 @@ def test_format_evidence_block_structure():
     assert "reddit" in block
     assert "---" in block
     assert "I hate when my earbuds fall out." in block
-    assert "Bose is expensive but worth it." in block
+    assert "Garmin is expensive but worth it." in block
 
 
 # ---------------------------------------------------------------------------

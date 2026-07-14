@@ -34,7 +34,7 @@ def sample_chunk(tmp_path: Path) -> Chunk:
     return Chunk(
         id=cid,
         text="Some text",
-        transcript_id="deep_research_bose_beat",
+        transcript_id="deep_research_garmin_roam",
         interviewee_name="",
         turn_ids=[],
         metadata={
@@ -206,7 +206,7 @@ class TestChunkSection:
             assert c.metadata["report_title"] == "MyTitle"
             assert c.metadata["subreddit"] == ""
             assert c.metadata["username"] == ""
-            assert c.transcript_id == "deep_research_bose_beat"
+            assert c.transcript_id == "deep_research_garmin_roam"
             assert c.interviewee_name == ""
             assert c.turn_ids == []
 
@@ -307,7 +307,7 @@ class TestReportTitle:
     def test_known_stem_returns_human_title(self, tmp_path: Path) -> None:
         pdf = tmp_path / "deep_research_report.pdf"
         title = script._report_title(pdf)
-        assert title == "Gen Z Premium Wireless Earbuds Market and Bose Beat Launch Context"
+        assert title == "Gen Z Outdoor Smartwatch Market and Garmin Roam Launch Context"
 
     def test_unknown_stem_derives_from_filename(self, tmp_path: Path) -> None:
         pdf = tmp_path / "some_other_report.pdf"

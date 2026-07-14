@@ -40,7 +40,7 @@ def _make_persona(**overrides) -> SubPersona:
 def test_icp_roundtrip(tmp_path):
     icp = ICPDocument(
         intake_id="intake_test",
-        product_name="Bose Beat",
+        product_name="Garmin Roam",
         pains=[_make_claim()],
         sub_personas=[_make_persona()],
         vocabulary=["these slap", "fit is tight"],
@@ -94,7 +94,7 @@ def test_sub_persona_empty_evidence_chunk_ids_raises():
 
 
 def test_icp_document_defaults():
-    icp = ICPDocument(intake_id="intake_test", product_name="Bose Beat")
+    icp = ICPDocument(intake_id="intake_test", product_name="Garmin Roam")
 
     assert icp.demographics == []
     assert icp.jobs_to_be_done == []
@@ -114,7 +114,7 @@ def test_icp_document_defaults():
 
 
 def test_save_icp_creates_correct_path(tmp_path):
-    icp = ICPDocument(intake_id="intake_test", product_name="Bose Beat")
+    icp = ICPDocument(intake_id="intake_test", product_name="Garmin Roam")
 
     saved_path = save_icp(icp, base_dir=tmp_path)
 

@@ -38,7 +38,7 @@ def _make_icp() -> ICPDocument:
     )
     return ICPDocument(
         intake_id="intake_x",
-        product_name="Bose Beat",
+        product_name="Garmin Roam",
         pains=[claim, claim, claim],
         gains=[claim, claim, claim],
         vocabulary=["vibe", "lowkey", "fire"],

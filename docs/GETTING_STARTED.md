@@ -142,16 +142,32 @@ vocabulary, but they never outweigh a customer interview.
 
 `scripts/ingest_deep_research.py` reads every PDF in
 `data/raw/test_deep_research_report/`, splitting on `##` markdown-style section
-headers. Tagged `trust_weight=0.8`.
+headers. Tagged `trust_weight=0.8` — analyst framing, weighted below customer
+voice but above public chatter.
+
+A sample report lives at `samples/deep_research/deep_research_report.pdf`. To
+ingest it:
 
 ```bash
 mkdir -p data/raw/test_deep_research_report
-cp your_report.pdf data/raw/test_deep_research_report/
+cp samples/deep_research/deep_research_report.pdf data/raw/test_deep_research_report/
 python scripts/ingest_deep_research.py
 ```
 
+**The `##` headers matter.** The ingester splits the extracted text on lines
+beginning with `## `, and everything before the first one is swept into a single
+leading section. A PDF exported from a word processor that styles headings
+visually — bold, larger font — but drops the literal `##` characters will parse
+as *one* giant section. If you're producing your own report, keep the markers in
+the text.
+
+The markdown source for the sample is committed alongside the PDF
+(`deep_research_report.md`), and `scripts/build_sample_pdf.py` regenerates the
+PDF from it. That's a working reference for the format.
+
 Both ingestion scripts write straight into ChromaDB and deduplicate against
-what's already indexed, so re-running them is safe.
+what's already indexed, so re-running them is safe. Note that they upsert into
+the index that `build_index.py` creates — run `build_index.py` first.
 
 ---
 
@@ -177,7 +193,10 @@ delete `data/processed/chroma/` by hand and run it again.
 ## What's where
 
 ```
-samples/           Synthetic Garmin Roam data — safe to delete once you have your own
+samples/
+  transcripts/     3 synthetic interviews — the primary evidence lane (trust 1.0)
+  reddit/          Sample CSV — the corroboration lane (trust 0.6)
+  deep_research/   Sample market report, .md source + rendered .pdf (trust 0.8)
 scripts/           CLI entry points, one per pipeline stage
 src/icp_agent/     The library: parsing, RAG, synthesis, chat
 src/icp_agent/agent/   The orchestrator's tool-use loop

@@ -29,3 +29,12 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+
+# Only collect from tests/. Without this, pytest walks the whole tree and picks
+# up scripts/smoke_test.py and scripts/test_retrieval.py — which are live CLI
+# scripts, not tests, and hit the Anthropic API on import.
+testpaths = ["tests"]
+
+# Default is ["test_*.py", "*_test.py"]. Drop the suffix form so *_test.py
+# scripts are never mistaken for test modules.
+python_files = ["test_*.py"]

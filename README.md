@@ -124,7 +124,15 @@ External APIs are mocked throughout — the suite makes no network calls.
 
 ## Data
 
-**This repo ships no real research data.** Everything under `data/` is gitignored. What's in `samples/` is synthetic: three fictional interviews about **Garmin Roam**, an invented sub-$300 Gen Z outdoor smartwatch, plus a sample Reddit CSV. Enough to run the pipeline end to end and see what the output looks like.
+**This repo ships no real research data.** Everything under `data/` is gitignored. What's in `samples/` is synthetic, built around **Garmin Roam** — an invented sub-$300 Gen Z outdoor smartwatch — with one sample per trust lane:
+
+| `samples/` | Lane | Trust |
+|---|---|---|
+| `transcripts/` — 3 fictional interviews | Primary evidence | `1.0` |
+| `deep_research/` — a market report (`.md` source + `.pdf`) | Analyst framing | `0.8` |
+| `reddit/` — a thread CSV | Public corroboration | `0.6` |
+
+Enough to run the pipeline end to end and watch all three lanes resolve against a single query.
 
 Real customer interviews are confidential by default. Keep them out of git.
 

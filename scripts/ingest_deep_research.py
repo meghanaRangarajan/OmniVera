@@ -53,7 +53,7 @@ _enc = tiktoken.get_encoding("cl100k_base")
 VALIDATION_QUERIES: list[str] = [
     "Gen Z price sensitivity and value perception",
     "Garmin brand perception among young buyers",
-    "fit comfort unmet needs small ears",
+    "battery life and GPS accuracy unmet needs",
     "Gen Z discovery and purchase journey social media",
     "messaging authenticity what works with Gen Z",
 ]

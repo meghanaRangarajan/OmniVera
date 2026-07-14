@@ -1,0 +1,33 @@
+.env
+.env.*
+!.env.example
+venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+*.egg-info/
+build/
+dist/
+
+# Local machine / editor settings — not meant to be shared
+.claude/
+.vscode/
+.idea/
+
+# Personal notes — not part of the shareable project
+MR_personal Notes/
+
+data/raw/*
+data/processed/*
+data/icp/*
+data/chat/*
+data/logs/*
+data/inputs/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/icp/.gitkeep
+!data/chat/.gitkeep
+!data/logs/.gitkeep
+!data/inputs/.gitkeep

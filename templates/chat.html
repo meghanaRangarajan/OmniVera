@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Omni-Vera — The truth behind your customer</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0e14;
+    --bg-elevated: #121821;
+    --bg-input: #0d1219;
+    --bg-bubble: #1a2331;
+    --border: #1f2937;
+    --border-active: #2dd4bf;
+    --text: #e5e7eb;
+    --text-dim: #6b7280;
+    --text-label: #9ca3af;
+    --accent: #2dd4bf;
+    --accent-soft: rgba(45, 212, 191, 0.1);
+    --accent-soft-border: rgba(45, 212, 191, 0.3);
+    --accent-dim: #134e4a;
+    --accent-text: #0a0e14;
+    --error: #f87171;
+    --error-soft: rgba(248, 113, 113, 0.1);
+    --error-soft-border: rgba(248, 113, 113, 0.3);
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  /* ========== Navbar ========== */
+  .navbar {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .brand {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .brand-name {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .brand-tagline {
+    font-size: 11px;
+    color: var(--accent);
+    opacity: 0.65;
+    letter-spacing: 0.5px;
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .persona-badge {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-soft-border);
+    color: var(--accent);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    max-width: 280px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .btn {
+    background: var(--bg-elevated);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn:hover { border-color: var(--border-active); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn.primary {
+    background: var(--accent);
+    color: var(--accent-text);
+    border-color: var(--accent);
+    font-weight: 500;
+  }
+
+  .btn.primary:hover {
+    background: #5eead4;
+    border-color: #5eead4;
+  }
+
+  .btn.outline {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent-soft-border);
+  }
+
+  .btn.outline:hover {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+
+  /* ========== Chat area ========== */
+  .chat-area {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--bg-elevated);
+    padding: 32px 28px 24px;
+  }
+
+  .chat-inner {
+    max-width: 820px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* Empty state */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 20px;
+    gap: 20px;
+  }
+
+  .empty-brand {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 48px;
+    font-weight: 400;
+    letter-spacing: 3px;
+    color: var(--text);
+  }
+
+  .empty-copy {
+    color: var(--text-label);
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+
+  .starter-chips {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 640px;
+  }
+
+  .starter-chip {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .starter-chip:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  /* Message bubbles */
+  .msg-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .msg-row.user { align-items: flex-end; }
+  .msg-row.omni-vera { align-items: flex-start; }
+
+  .msg-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+    padding: 0 6px;
+  }
+
+  .msg-label.persona {
+    color: var(--accent);
+    opacity: 0.8;
+  }
+
+  .bubble {
+    padding: 12px 16px;
+    line-height: 1.55;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    min-width: 0;
+  }
+
+  .bubble.user {
+    background: var(--accent);
+    color: var(--accent-text);
+    max-width: 70%;
+    border-radius: 14px 14px 4px 14px;
+    font-weight: 500;
+  }
+
+  .bubble.omni-vera {
+    background: var(--bg-bubble);
+    color: var(--text);
+    max-width: min(75%, 680px);
+    border-radius: 4px 14px 14px 14px;
+    border-left: 3px solid var(--accent);
+    overflow: hidden;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    min-width: 0;
+  }
+
+  /* Make sure the omni-vera row itself can shrink and doesn't force overflow. */
+  .msg-row.omni-vera {
+    min-width: 0;
+    flex-shrink: 1;
+    max-width: 100%;
+  }
+
+  .bubble.omni-vera.error {
+    border-left-color: var(--error);
+    background: var(--error-soft);
+    color: var(--error);
+  }
+
+  /* Typing indicator */
+  .typing {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    padding: 4px 0;
+  }
+
+  .typing span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.4;
+    animation: pulse 1.2s infinite ease-in-out;
+  }
+
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes pulse {
+    0%, 60%, 100% { opacity: 0.3; transform: scale(0.85); }
+    30% { opacity: 1; transform: scale(1); }
+  }
+
+  /* Citation badges */
+  .citation {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    padding: 1px 8px;
+    margin: 0 2px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-soft-border);
+    color: var(--accent);
+    letter-spacing: 0.2px;
+    vertical-align: middle;
+    line-height: 1.6;
+    max-width: 100%;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .citation.reddit {
+    background: rgba(156, 163, 175, 0.1);
+    border-color: rgba(156, 163, 175, 0.3);
+    color: var(--text-label);
+  }
+
+  .citation.research {
+    background: rgba(94, 234, 212, 0.08);
+    border-color: rgba(94, 234, 212, 0.25);
+    color: #5eead4;
+  }
+
+  /* System message (persona switch) */
+  .system-msg {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 12px;
+    padding: 8px 0;
+    letter-spacing: 0.3px;
+    font-style: italic;
+  }
+
+  /* ========== Input bar ========== */
+  .input-bar {
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    padding: 14px 28px 10px;
+    flex-shrink: 0;
+  }
+
+  .input-inner {
+    max-width: 820px;
+    margin: 0 auto;
+  }
+
+  .file-pill-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .file-pill-row:empty { display: none; }
+
+  .file-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-label);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    max-width: 100%;
+  }
+
+  .file-pill .pill-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 360px;
+  }
+
+  .file-pill.active {
+    background: var(--accent-soft);
+    border-color: var(--accent-soft-border);
+    color: var(--accent);
+  }
+
+  .file-pill .remove {
+    cursor: pointer;
+    opacity: 0.6;
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  .file-pill .remove:hover { opacity: 1; }
+
+  .input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px 8px 8px 12px;
+    transition: border-color 0.2s;
+  }
+
+  .input-row:focus-within {
+    border-color: var(--border-active);
+  }
+
+  .icon-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+  }
+
+  .icon-btn:hover { color: var(--accent); }
+  .icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  #chat-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: none;
+    outline: none;
+    padding: 6px 0;
+    max-height: 140px;
+    min-height: 24px;
+  }
+
+  #chat-input::placeholder { color: var(--text-dim); }
+
+  .send-btn {
+    background: var(--accent);
+    color: var(--accent-text);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .send-btn:hover:not(:disabled) { background: #5eead4; }
+  .send-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .input-error {
+    background: var(--error-soft);
+    border: 1px solid var(--error-soft-border);
+    color: var(--error);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    margin-bottom: 10px;
+    display: none;
+  }
+
+  /* ========== Footer ========== */
+  .footer {
+    background: var(--bg);
+    padding: 6px 20px 10px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    letter-spacing: 0.3px;
+  }
+
+  /* ========== Modal ========== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 8, 12, 0.75);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 28px;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .modal-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+  }
+
+  .modal-close {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-size: 22px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px 8px;
+  }
+
+  .modal-close:hover { color: var(--text); }
+
+  .persona-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .persona-card {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .persona-card:hover { border-color: var(--accent); }
+
+  .persona-card.selected {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .persona-card-name {
+    color: var(--text);
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .persona-card.selected .persona-card-name { color: var(--accent); }
+
+  .persona-card-desc {
+    color: var(--text-dim);
+    font-size: 12px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  /* Scrollbar */
+  .chat-area::-webkit-scrollbar { width: 8px; }
+  .chat-area::-webkit-scrollbar-track { background: transparent; }
+  .chat-area::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
+  .chat-area::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .navbar { padding: 12px 16px; }
+    .chat-area { padding: 20px 16px 16px; }
+    .input-bar { padding: 12px 16px 8px; }
+    .bubble.user, .bubble.omni-vera { max-width: 92%; }
+    .bubble.omni-vera { max-width: min(92%, 680px); }
+    .empty-brand { font-size: 36px; }
+    .persona-badge { max-width: 140px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="brand">
+      <div class="brand-name">OMNI-VERA</div>
+      <div class="brand-tagline">The truth behind your customer</div>
+    </div>
+    <div class="nav-right">
+      <div class="persona-badge" id="persona-badge" title="">—</div>
+      <button class="btn outline" id="switch-btn" onclick="openPersonaModal()">Switch Persona</button>
+      <button class="btn outline" id="export-btn" onclick="exportChat()">Export PDF</button>
+    </div>
+  </nav>
+
+  <!-- Chat area -->
+  <div class="chat-area" id="chat-area">
+    <div class="chat-inner" id="chat-inner">
+      <!-- Empty state (removed once first message is sent) -->
+      <div class="empty-state" id="empty-state">
+        <div class="empty-brand">OMNI-VERA</div>
+        <div class="empty-copy">Ask me anything about your customer.</div>
+        <div class="starter-chips">
+          <div class="starter-chip" onclick="useStarter(this.textContent)">How would this persona react to my ad?</div>
+          <div class="starter-chip" onclick="useStarter(this.textContent)">What are their biggest objections to buying?</div>
+          <div class="starter-chip" onclick="useStarter(this.textContent)">What language do they actually use?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input bar -->
+  <div class="input-bar">
+    <div class="input-inner">
+      <div class="input-error" id="input-error"></div>
+      <div class="file-pill-row" id="file-pill-row"></div>
+      <div class="input-row">
+        <button class="icon-btn" id="upload-btn" title="Attach a file or image" onclick="document.getElementById('file-input').click()">📎</button>
+        <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.webp,.pdf,.docx,.txt,.md" style="display:none">
+        <textarea id="chat-input" placeholder="Ask Omni-Vera about your customer..." rows="1"></textarea>
+        <button class="send-btn" id="send-btn" onclick="sendMessage()" disabled>
+          <span>Send</span>
+          <span>→</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">Omni-Vera by ICP Agent · Evidence-grounded customer intelligence</div>
+</div>
+
+<!-- Persona switcher modal -->
+<div class="modal-overlay" id="persona-modal" onclick="modalBgClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Switch Persona</div>
+      <button class="modal-close" onclick="closePersonaModal()">×</button>
+    </div>
+    <div class="persona-list" id="persona-list"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closePersonaModal()">Cancel</button>
+      <button class="btn primary" onclick="confirmPersona()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== State ==========
+const state = {
+  intakeId: null,
+  productName: "",
+  personas: [],
+  activePersonaIndex: 0,
+  pendingPersonaIndex: 0,
+  attachedFile: null,      // pending upload { name, type, dataBase64 }
+  activeAttachment: null,  // server-held extracted context { filename, type }
+  messages: [],            // { role, content, persona? } for export
+  streaming: false,
+};
+
+// ========== Init ==========
+window.addEventListener("DOMContentLoaded", init);
+
+async function init() {
+  const params = new URLSearchParams(window.location.search);
+  const intakeId = params.get("intake_id") || "latest";
+
+  try {
+    const r = await fetch(`/api/chat/init?intake_id=${encodeURIComponent(intakeId)}`);
+    const data = await r.json();
+    if (!data.ok) {
+      showInitError(data.error || "Failed to initialize chat session.");
+      return;
+    }
+    state.intakeId = data.intake_id;
+    state.productName = data.product_name;
+    state.personas = data.personas;
+    state.activePersonaIndex = data.active_persona_index;
+    state.pendingPersonaIndex = data.active_persona_index;
+    state.activeAttachment = data.active_attachment || null;
+    updatePersonaBadge();
+    renderFilePill();
+  } catch (e) {
+    showInitError("Network error: " + e.message);
+  }
+}
+
+function showInitError(msg) {
+  const empty = document.getElementById("empty-state");
+  empty.innerHTML = `
+    <div class="empty-brand" style="color: var(--error)">⚠</div>
+    <div class="empty-copy" style="color: var(--error)">${escapeHtml(msg)}</div>
+  `;
+  document.getElementById("send-btn").disabled = true;
+  document.getElementById("switch-btn").disabled = true;
+}
+
+function updatePersonaBadge() {
+  const persona = state.personas[state.activePersonaIndex];
+  if (!persona) return;
+  const badge = document.getElementById("persona-badge");
+  badge.textContent = persona.name;
+  badge.title = persona.description;
+}
+
+// ========== Input handling ==========
+const input = document.getElementById("chat-input");
+const sendBtn = document.getElementById("send-btn");
+
+input.addEventListener("input", () => {
+  autoResizeInput();
+  updateSendEnabled();
+});
+
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    if (!sendBtn.disabled) sendMessage();
+  }
+});
+
+function autoResizeInput() {
+  input.style.height = "auto";
+  const maxH = 140;
+  input.style.height = Math.min(input.scrollHeight, maxH) + "px";
+}
+
+function updateSendEnabled() {
+  const hasText = input.value.trim().length > 0;
+  const hasFile = state.attachedFile !== null;
+  sendBtn.disabled = state.streaming || (!hasText && !hasFile);
+}
+
+function useStarter(text) {
+  input.value = text;
+  autoResizeInput();
+  updateSendEnabled();
+  input.focus();
+}
+
+// ========== File upload ==========
+const ALLOWED_EXT = ["jpg", "jpeg", "png", "webp", "pdf", "docx", "txt", "md"];
+
+document.getElementById("file-input").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  e.target.value = "";
+  if (!file) return;
+
+  const ext = file.name.split(".").pop().toLowerCase();
+  if (!ALLOWED_EXT.includes(ext)) {
+    showInputError(`Unsupported file type ".${ext}". Allowed: ${ALLOWED_EXT.join(", ")}`);
+    return;
+  }
+  clearInputError();
+
+  try {
+    const dataBase64 = await readFileAsBase64(file);
+    state.attachedFile = {
+      name: file.name,
+      type: file.type || ext,
+      dataBase64: dataBase64,
+    };
+    renderFilePill();
+    updateSendEnabled();
+  } catch (err) {
+    showInputError("Could not read file: " + err.message);
+  }
+});
+
+function readFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      // result = "data:<mime>;base64,<data>"
+      const result = reader.result;
+      const comma = result.indexOf(",");
+      resolve(comma >= 0 ? result.slice(comma + 1) : result);
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderFilePill() {
+  const row = document.getElementById("file-pill-row");
+  row.innerHTML = "";
+  // Pending client-side upload takes priority — it's what will be sent next.
+  if (state.attachedFile) {
+    row.innerHTML = `
+      <div class="file-pill">
+        <span>📎</span>
+        <span class="pill-name" title="${escapeHtml(state.attachedFile.name)}">${escapeHtml(state.attachedFile.name)}</span>
+        <span class="remove" onclick="removePendingFile()">×</span>
+      </div>
+    `;
+    return;
+  }
+  // Otherwise, show the persistent attachment that the server is holding.
+  if (state.activeAttachment) {
+    const name = state.activeAttachment.filename || "";
+    row.innerHTML = `
+      <div class="file-pill active" title="Omni-Vera will reference this file in every message until you remove it.">
+        <span>📎</span>
+        <span class="pill-name" title="${escapeHtml(name)}">${escapeHtml(name)}</span>
+        <span class="remove" onclick="removeActiveAttachment()">×</span>
+      </div>
+    `;
+  }
+}
+
+function removePendingFile() {
+  state.attachedFile = null;
+  renderFilePill();
+  updateSendEnabled();
+}
+
+async function removeActiveAttachment() {
+  try {
+    await fetch("/api/chat/attachment", { method: "DELETE" });
+  } catch (e) {
+    // Non-fatal — clear UI state regardless.
+  }
+  state.activeAttachment = null;
+  renderFilePill();
+  updateSendEnabled();
+}
+
+function showInputError(msg) {
+  const el = document.getElementById("input-error");
+  el.textContent = msg;
+  el.style.display = "block";
+}
+
+function clearInputError() {
+  document.getElementById("input-error").style.display = "none";
+}
+
+// ========== Sending / streaming ==========
+async function sendMessage() {
+  const text = input.value.trim();
+  const file = state.attachedFile;
+  if (!text && !file) return;
+  if (state.streaming) return;
+
+  // Hide empty state
+  const empty = document.getElementById("empty-state");
+  if (empty) empty.remove();
+
+  // Append user bubble
+  const userDisplay = text || `(file: ${file.name})`;
+  appendUserBubble(userDisplay);
+  state.messages.push({ role: "user", content: userDisplay });
+
+  // Clear input
+  input.value = "";
+  autoResizeInput();
+  clearInputError();
+
+  const payload = {
+    message: text,
+    file_data: file ? file.dataBase64 : null,
+    file_name: file ? file.name : null,
+    file_type: file ? file.type : null,
+  };
+
+  // Clear the pending client-side file. The server will acknowledge with
+  // an "attachment_set" SSE event, and we'll promote it into activeAttachment.
+  state.attachedFile = null;
+  renderFilePill();
+
+  state.streaming = true;
+  updateSendEnabled();
+
+  // Create Omni-Vera bubble with typing indicator
+  const persona = state.personas[state.activePersonaIndex];
+  const { row, bubble } = appendOmniVeraBubble(persona.name);
+  const typing = document.createElement("div");
+  typing.className = "typing";
+  typing.innerHTML = "<span></span><span></span><span></span>";
+  bubble.appendChild(typing);
+  scrollToBottom();
+
+  try {
+    const r = await fetch("/api/chat/message", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!r.ok || !r.body) {
+      let errMsg = "Something went wrong. Please try again.";
+      try { const j = await r.json(); if (j.error) errMsg = j.error; } catch {}
+      markBubbleError(row, bubble, errMsg);
+      state.streaming = false;
+      updateSendEnabled();
+      return;
+    }
+
+    await consumeSSE(r, bubble, typing);
+  } catch (e) {
+    markBubbleError(row, bubble, "Network error: " + e.message);
+  } finally {
+    state.streaming = false;
+    updateSendEnabled();
+  }
+}
+
+async function consumeSSE(response, bubble, typing) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let streamedText = "";
+  let firstToken = true;
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    // SSE events split by \n\n
+    let idx;
+    while ((idx = buffer.indexOf("\n\n")) >= 0) {
+      const rawEvent = buffer.slice(0, idx);
+      buffer = buffer.slice(idx + 2);
+
+      // Extract data: lines
+      const dataLines = rawEvent.split("\n")
+        .filter(l => l.startsWith("data:"))
+        .map(l => l.slice(5).trimStart());
+      if (dataLines.length === 0) continue;
+
+      let evt;
+      try { evt = JSON.parse(dataLines.join("\n")); } catch { continue; }
+
+      if (evt.type === "start") {
+        // no-op; persona label already shown
+      } else if (evt.type === "attachment_set") {
+        state.activeAttachment = { filename: evt.filename };
+        renderFilePill();
+        if (evt.replaced) {
+          appendSystemMessage(`[Attachment updated: ${evt.filename}]`);
+        }
+      } else if (evt.type === "token") {
+        if (firstToken) {
+          if (typing && typing.parentNode) typing.remove();
+          firstToken = false;
+        }
+        streamedText += evt.text;
+        bubble.textContent = streamedText;
+        scrollToBottom();
+      } else if (evt.type === "done") {
+        if (firstToken && typing && typing.parentNode) typing.remove();
+        const fullText = evt.full_text || streamedText;
+        bubble.innerHTML = renderCitations(fullText);
+        const personaName = state.personas[state.activePersonaIndex]?.name || "Omni-Vera";
+        state.messages.push({
+          role: "assistant", content: fullText, persona: personaName,
+        });
+        scrollToBottom();
+      } else if (evt.type === "error") {
+        markBubbleError(null, bubble, evt.message || "Stream error");
+      }
+    }
+  }
+}
+
+// ========== Bubble rendering ==========
+function appendUserBubble(text) {
+  const inner = document.getElementById("chat-inner");
+  const row = document.createElement("div");
+  row.className = "msg-row user";
+  row.innerHTML = `
+    <div class="msg-label">You</div>
+    <div class="bubble user"></div>
+  `;
+  row.querySelector(".bubble").textContent = text;
+  inner.appendChild(row);
+  scrollToBottom();
+}
+
+function appendOmniVeraBubble(personaName) {
+  const inner = document.getElementById("chat-inner");
+  const row = document.createElement("div");
+  row.className = "msg-row omni-vera";
+  row.innerHTML = `
+    <div class="msg-label persona">${escapeHtml(personaName)}</div>
+    <div class="bubble omni-vera"></div>
+  `;
+  inner.appendChild(row);
+  return { row, bubble: row.querySelector(".bubble") };
+}
+
+function markBubbleError(row, bubble, message) {
+  bubble.classList.add("error");
+  bubble.innerHTML = "";
+  bubble.textContent = message;
+}
+
+function appendSystemMessage(text) {
+  const inner = document.getElementById("chat-inner");
+  const div = document.createElement("div");
+  div.className = "system-msg";
+  div.textContent = text;
+  inner.appendChild(div);
+  scrollToBottom();
+}
+
+function scrollToBottom() {
+  const area = document.getElementById("chat-area");
+  area.scrollTop = area.scrollHeight;
+}
+
+// ========== Citation rendering ==========
+function renderCitations(text) {
+  // Escape first, then replace citation patterns. The captured text is
+  // already HTML-escaped, so we must not escape it again.
+  let safe = escapeHtml(text);
+  const buildCitation = (kind, cssClass) => (_, rawName) => {
+    const full = `${kind}: ${rawName.trim()}`;
+    const display = full.length > 60 ? full.slice(0, 60) + "..." : full;
+    // The title attribute receives the already-escaped text, but we
+    // swap double-quotes to a safe entity so the attribute stays valid.
+    const titleSafe = full.replace(/"/g, "&quot;");
+    return `<span class="citation ${cssClass}" title="${titleSafe}">${display}</span>`;
+  };
+  safe = safe.replace(/\[transcript:\s*([^\]]+?)\]/g,
+    buildCitation("transcript", "transcript"));
+  safe = safe.replace(/\[reddit:\s*([^\]]+?)\]/g,
+    buildCitation("reddit", "reddit"));
+  safe = safe.replace(/\[research:\s*([^\]]+?)\]/g,
+    buildCitation("research", "research"));
+  return safe;
+}
+
+// ========== Persona modal ==========
+function openPersonaModal() {
+  state.pendingPersonaIndex = state.activePersonaIndex;
+  renderPersonaList();
+  document.getElementById("persona-modal").classList.add("open");
+}
+
+function closePersonaModal() {
+  document.getElementById("persona-modal").classList.remove("open");
+}
+
+function modalBgClick(e) {
+  if (e.target.id === "persona-modal") closePersonaModal();
+}
+
+function renderPersonaList() {
+  const list = document.getElementById("persona-list");
+  list.innerHTML = state.personas.map((p, i) => `
+    <div class="persona-card ${i === state.pendingPersonaIndex ? "selected" : ""}" data-idx="${i}">
+      <div class="persona-card-name">${escapeHtml(p.name)}</div>
+      <div class="persona-card-desc">${escapeHtml(p.description || "")}</div>
+    </div>
+  `).join("");
+  list.querySelectorAll(".persona-card").forEach(card => {
+    card.addEventListener("click", () => {
+      state.pendingPersonaIndex = parseInt(card.dataset.idx);
+      renderPersonaList();
+    });
+  });
+}
+
+async function confirmPersona() {
+  if (state.pendingPersonaIndex === state.activePersonaIndex) {
+    closePersonaModal();
+    return;
+  }
+  try {
+    const r = await fetch("/api/chat/persona", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ persona_index: state.pendingPersonaIndex }),
+    });
+    const data = await r.json();
+    if (!data.ok) {
+      showInputError(data.error || "Could not switch persona.");
+      closePersonaModal();
+      return;
+    }
+    state.activePersonaIndex = state.pendingPersonaIndex;
+    updatePersonaBadge();
+    const empty = document.getElementById("empty-state");
+    if (empty) empty.remove();
+    appendSystemMessage(`[Switched to: ${data.persona_name}]`);
+    closePersonaModal();
+  } catch (e) {
+    showInputError("Network error: " + e.message);
+    closePersonaModal();
+  }
+}
+
+// ========== Keyboard ==========
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closePersonaModal();
+});
+
+// ========== Export PDF ==========
+async function exportChat() {
+  const btn = document.getElementById("export-btn");
+  if (!state.messages.length) {
+    showInputError("Nothing to export yet — start a conversation first.");
+    return;
+  }
+  const originalLabel = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "Exporting…";
+
+  const payload = {
+    messages: state.messages,
+    persona_name: state.personas[state.activePersonaIndex]?.name || "Persona",
+    product_name: state.productName || "Product",
+    intake_id: state.intakeId || "",
+  };
+
+  try {
+    const r = await fetch("/api/chat/export", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!r.ok) {
+      let msg = "Export failed.";
+      try { const j = await r.json(); if (j.error) msg = j.error; } catch {}
+      showInputError(msg);
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+      return;
+    }
+
+    const blob = await r.blob();
+    const cd = r.headers.get("Content-Disposition") || "";
+    const match = /filename\*?=(?:UTF-8'')?["']?([^"';]+)/i.exec(cd);
+    const filename = match ? decodeURIComponent(match[1]) : "omni_vera_chat.pdf";
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    btn.textContent = "Exported ✓";
+    setTimeout(() => {
+      btn.textContent = originalLabel;
+      btn.disabled = false;
+    }, 2000);
+  } catch (e) {
+    showInputError("Export error: " + e.message);
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+  }
+}
+
+// ========== Utilities ==========
+function escapeHtml(s) {
+  if (s == null) return "";
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+  }[c]));
+}
+</script>
+</body>
+</html>

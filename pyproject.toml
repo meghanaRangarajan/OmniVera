@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "icp-agent"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic",
+    "praw",
+    "pydantic>=2.0",
+    "python-dotenv",
+    "chromadb",
+    "trafilatura",
+    "pytest",
+    "pytest-mock",
+    "python-docx",
+    "pdfplumber",
+    "reportlab",
+    "openai",
+    "tiktoken",
+    "flask",
+    "rich",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

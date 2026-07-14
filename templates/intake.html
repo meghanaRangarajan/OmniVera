@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ICP Agent — Intake</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0e14;
+    --bg-elevated: #121821;
+    --bg-input: #0d1219;
+    --border: #1f2937;
+    --border-active: #2dd4bf;
+    --text: #e5e7eb;
+    --text-dim: #6b7280;
+    --text-label: #9ca3af;
+    --accent: #2dd4bf;
+    --accent-dim: #134e4a;
+    --accent-text: #0a0e14;
+    --error: #f87171;
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 48px 32px 96px;
+  }
+
+  .breadcrumb {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  .breadcrumb .sep { margin: 0 6px; }
+  .breadcrumb .active { color: var(--text-label); }
+
+  h1 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 40px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    margin-bottom: 32px;
+  }
+
+  /* Stepper */
+  .stepper {
+    display: flex;
+    gap: 8px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 6px;
+    margin-bottom: 40px;
+    width: fit-content;
+  }
+
+  .step {
+    padding: 10px 18px;
+    border-radius: 7px;
+    font-size: 13px;
+    color: var(--text-dim);
+    cursor: default;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .step.active {
+    background: rgba(45, 212, 191, 0.1);
+    color: var(--accent);
+    border: 1px solid rgba(45, 212, 191, 0.3);
+  }
+
+  .step.complete {
+    color: var(--text-label);
+  }
+
+  .step.complete::before {
+    content: "✓ ";
+    color: var(--accent);
+  }
+
+  /* Steps container */
+  .step-panel { display: none; }
+  .step-panel.active { display: block; }
+
+  .intro {
+    color: var(--text-label);
+    margin-bottom: 32px;
+    max-width: 560px;
+  }
+
+  /* Form fields */
+  .field { margin-bottom: 28px; }
+
+  label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-label);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  label .optional {
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--text-dim);
+    font-size: 11px;
+    margin-left: 6px;
+  }
+
+  input[type="text"], textarea {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    transition: border-color 0.2s;
+  }
+
+  input[type="text"]::placeholder, textarea::placeholder {
+    color: var(--text-dim);
+  }
+
+  input[type="text"]:focus, textarea:focus {
+    outline: none;
+    border-color: var(--border-active);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+  }
+
+  /* Chips (for competitors & goals) */
+  .chip-input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .chip-input-row input {
+    flex: 1;
+  }
+
+  button {
+    background: var(--bg-elevated);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  button:hover {
+    border-color: var(--border-active);
+  }
+
+  button.primary {
+    background: var(--accent);
+    color: var(--accent-text);
+    border-color: var(--accent);
+    font-weight: 500;
+  }
+
+  button.primary:hover {
+    background: #5eead4;
+    border-color: #5eead4;
+  }
+
+  button.primary:disabled, button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  button.ghost {
+    background: transparent;
+  }
+
+  .chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .chip {
+    background: rgba(45, 212, 191, 0.1);
+    border: 1px solid rgba(45, 212, 191, 0.3);
+    color: var(--accent);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .chip .remove {
+    cursor: pointer;
+    opacity: 0.6;
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .chip .remove:hover { opacity: 1; }
+
+  /* Goal cards (multi-select) */
+  .goals {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+
+  .goal {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    user-select: none;
+  }
+
+  .goal:hover { border-color: var(--text-dim); }
+
+  .goal.selected {
+    background: rgba(45, 212, 191, 0.08);
+    border-color: rgba(45, 212, 191, 0.5);
+  }
+
+  .goal .check {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--text-dim);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: transparent;
+  }
+
+  .goal.selected .check {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-text);
+  }
+
+  /* File upload */
+  .dropzone {
+    background: var(--bg-input);
+    border: 1.5px dashed var(--border);
+    border-radius: 10px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .dropzone:hover, .dropzone.drag-over {
+    border-color: var(--accent);
+    background: rgba(45, 212, 191, 0.04);
+  }
+
+  .dropzone-icon {
+    font-size: 24px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+
+  .dropzone-main {
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .dropzone-sub {
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+
+  .file-list {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .file-item .name { color: var(--text); }
+  .file-item .size { color: var(--text-dim); font-size: 12px; margin-left: 12px; }
+  .file-item .remove { cursor: pointer; color: var(--text-dim); }
+  .file-item .remove:hover { color: var(--error); }
+
+  /* Review */
+  .review-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .review-card h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-label);
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+
+  .review-card .value {
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .review-card .value.dim {
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  /* Footer nav */
+  .nav {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .nav .helper {
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+
+  /* Success / error states */
+  .message {
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    display: none;
+  }
+
+  .message.error {
+    background: rgba(248, 113, 113, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    color: var(--error);
+  }
+
+  .success-screen {
+    display: none;
+    text-align: center;
+    padding: 60px 0;
+  }
+
+  .success-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(45, 212, 191, 0.15);
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin-bottom: 24px;
+  }
+
+  .success-screen h2 {
+    font-family: Georgia, serif;
+    font-size: 28px;
+    font-weight: 400;
+    margin-bottom: 12px;
+  }
+
+  .success-screen p {
+    color: var(--text-label);
+    margin-bottom: 8px;
+  }
+
+  .success-screen .intake-id {
+    font-family: 'SF Mono', Monaco, Menlo, monospace;
+    font-size: 13px;
+    color: var(--accent);
+    margin-top: 20px;
+    padding: 12px 16px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: inline-block;
+  }
+
+  .helper-text {
+    color: var(--text-dim);
+    font-size: 12px;
+    margin-top: 8px;
+  }
+
+  .char-count {
+    float: right;
+    color: var(--text-dim);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .char-count.warn { color: var(--error); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="breadcrumb">
+    <span>ICP Agent</span>
+    <span class="sep">›</span>
+    <span class="active" id="bc-step">Brand</span>
+  </div>
+
+  <h1>INTAKE</h1>
+
+  <div class="stepper">
+    <div class="step active" data-step="1">1 · Brand</div>
+    <div class="step" data-step="2">2 · Transcripts</div>
+    <div class="step" data-step="3">3 · Goals</div>
+    <div class="step" data-step="4">4 · Review</div>
+  </div>
+
+  <div id="error-msg" class="message error"></div>
+
+  <!-- STEP 1: Brand -->
+  <div class="step-panel active" data-panel="1">
+    <div class="intro">
+      Tell us about your product. This context shapes every downstream
+      query, research plan, and persona we build.
+    </div>
+
+    <div class="field">
+      <label>Product / Company name</label>
+      <input type="text" id="product_name" placeholder="e.g., Acme Books" maxlength="100">
+    </div>
+
+    <div class="field">
+      <label>Product description <span class="char-count" id="desc-count">0 / 1000</span></label>
+      <textarea id="product_description" placeholder="One paragraph: what your product does, who it's for, why it exists. Minimum 20 characters." rows="4" maxlength="1000"></textarea>
+    </div>
+
+    <div class="field">
+      <label>ICP hypothesis <span class="char-count" id="icp-count">0 / 500</span></label>
+      <textarea id="icp_hypothesis" placeholder="Who do you THINK your ideal customer is? (Vague is okay — the tool refines this.)" rows="3" maxlength="500"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Competitors <span class="optional">(2–5 required)</span></label>
+      <div class="chip-input-row">
+        <input type="text" id="competitor_input" placeholder="e.g., UserPersona.ai — press Enter to add">
+        <button type="button" onclick="addCompetitor()">Add</button>
+      </div>
+      <div class="chips" id="competitor_chips"></div>
+    </div>
+
+    <div class="field">
+      <label>Target geography <span class="optional">(optional)</span></label>
+      <input type="text" id="target_geography" placeholder="e.g., North America, US West Coast, Global" maxlength="200">
+    </div>
+
+    <div class="nav">
+      <button class="primary" onclick="goStep(2)">Continue →</button>
+      <span class="helper" id="step1-helper">Fill in name, description, ICP, and 2+ competitors</span>
+    </div>
+  </div>
+
+  <!-- STEP 2: Transcripts -->
+  <div class="step-panel" data-panel="2">
+    <div class="intro">
+      Upload customer interviews, support call transcripts, or user
+      research notes. These are your highest-trust data source.
+    </div>
+
+    <div class="field">
+      <label>Transcript files <span class="optional">(optional but recommended)</span></label>
+      <div class="dropzone" id="dropzone" onclick="document.getElementById('file_input').click()">
+        <div class="dropzone-icon">⬆</div>
+        <div class="dropzone-main">Click to browse or drag files here</div>
+        <div class="dropzone-sub">Supported: .pdf .docx .txt .md .vtt .srt</div>
+      </div>
+      <input type="file" id="file_input" multiple accept=".pdf,.docx,.txt,.md,.vtt,.srt" style="display:none">
+      <div class="file-list" id="file_list"></div>
+      <div class="helper-text" id="file-helper">No files added yet</div>
+    </div>
+
+    <div class="nav">
+      <button onclick="goStep(1)">← Back</button>
+      <button class="primary" onclick="goStep(3)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Goals -->
+  <div class="step-panel" data-panel="3">
+    <div class="intro">
+      What will you use this ICP for? Pick all that apply.
+    </div>
+
+    <div class="field">
+      <div class="goals" id="goals_grid">
+        <div class="goal" data-value="test_ad_creative"><div class="check">✓</div><div>Test ad creative</div></div>
+        <div class="goal" data-value="test_messaging"><div class="check">✓</div><div>Test messaging</div></div>
+        <div class="goal" data-value="test_product_ideas"><div class="check">✓</div><div>Test product ideas</div></div>
+        <div class="goal" data-value="general_research"><div class="check">✓</div><div>General research</div></div>
+        <div class="goal" data-value="build_sales_collateral"><div class="check">✓</div><div>Build sales collateral</div></div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button onclick="goStep(2)">← Back</button>
+      <button class="primary" onclick="goStep(4)">Continue →</button>
+      <span class="helper" id="step3-helper">Select at least one goal</span>
+    </div>
+  </div>
+
+  <!-- STEP 4: Review -->
+  <div class="step-panel" data-panel="4">
+    <div class="intro">
+      Review everything before saving. You can come back and edit later.
+    </div>
+
+    <div class="review-card">
+      <h3>Product</h3>
+      <div class="value" id="review-product"></div>
+    </div>
+
+    <div class="review-card">
+      <h3>Description</h3>
+      <div class="value" id="review-desc"></div>
+    </div>
+
+    <div class="review-card">
+      <h3>ICP hypothesis</h3>
+      <div class="value" id="review-icp"></div>
+    </div>
+
+    <div class="review-card">
+      <h3>Competitors</h3>
+      <div class="value" id="review-competitors"></div>
+    </div>
+
+    <div class="review-card">
+      <h3>Target geography</h3>
+      <div class="value" id="review-geo"></div>
+    </div>
+
+    <div class="review-card">
+      <h3>Transcripts</h3>
+      <div class="value" id="review-files"></div>
+    </div>
+
+    <div class="review-card">
+      <h3>Research goals</h3>
+      <div class="value" id="review-goals"></div>
+    </div>
+
+    <div class="nav">
+      <button onclick="goStep(3)">← Back</button>
+      <button class="primary" onclick="submitIntake()" id="submit-btn">Save intake</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS SCREEN -->
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon">✓</div>
+    <h2>Intake saved</h2>
+    <p>Your data is saved and your transcripts have been parsed.</p>
+    <p id="success-stats"></p>
+    <div class="intake-id" id="success-id"></div>
+    <div style="margin-top: 32px">
+      <button onclick="location.reload()">Start another intake</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== State ==========
+const state = {
+  currentStep: 1,
+  competitors: [],
+  goals: new Set(),
+  files: [], // {file: File, name: string, size: number}
+};
+
+// ========== Step navigation ==========
+const stepNames = { 1: "Brand", 2: "Transcripts", 3: "Goals", 4: "Review" };
+
+function goStep(n) {
+  if (n > state.currentStep && !validateStep(state.currentStep)) return;
+
+  state.currentStep = n;
+  document.querySelectorAll(".step-panel").forEach(p => p.classList.remove("active"));
+  document.querySelector(`[data-panel="${n}"]`).classList.add("active");
+
+  document.querySelectorAll(".step").forEach(el => {
+    const s = parseInt(el.dataset.step);
+    el.classList.remove("active", "complete");
+    if (s === n) el.classList.add("active");
+    else if (s < n) el.classList.add("complete");
+  });
+
+  document.getElementById("bc-step").textContent = stepNames[n];
+  clearError();
+
+  if (n === 4) renderReview();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function validateStep(n) {
+  clearError();
+  if (n === 1) {
+    const name = val("product_name");
+    const desc = val("product_description");
+    const icp = val("icp_hypothesis");
+    if (!name || name.length < 2) return showError("Product name is required (2+ chars)");
+    if (!desc || desc.length < 20) return showError("Product description must be at least 20 characters");
+    if (!icp || icp.length < 15) return showError("ICP hypothesis must be at least 15 characters");
+    if (state.competitors.length < 2) return showError("Please add at least 2 competitors");
+    if (state.competitors.length > 5) return showError("Maximum 5 competitors");
+    return true;
+  }
+  if (n === 3) {
+    if (state.goals.size < 1) return showError("Please select at least one research goal");
+    return true;
+  }
+  return true;
+}
+
+function val(id) { return document.getElementById(id).value.trim(); }
+
+function showError(msg) {
+  const el = document.getElementById("error-msg");
+  el.textContent = msg;
+  el.style.display = "block";
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
+  return false;
+}
+
+function clearError() {
+  document.getElementById("error-msg").style.display = "none";
+}
+
+// ========== Live validation / helpers ==========
+document.getElementById("product_description").addEventListener("input", (e) => {
+  updateCount("desc-count", e.target.value.length, 1000, 20);
+  updateStep1Helper();
+});
+document.getElementById("icp_hypothesis").addEventListener("input", (e) => {
+  updateCount("icp-count", e.target.value.length, 500, 15);
+  updateStep1Helper();
+});
+document.getElementById("product_name").addEventListener("input", updateStep1Helper);
+
+function updateCount(id, current, max, min) {
+  const el = document.getElementById(id);
+  el.textContent = `${current} / ${max}`;
+  el.classList.toggle("warn", current > max || (current > 0 && current < min));
+}
+
+function updateStep1Helper() {
+  const hasName = val("product_name").length >= 2;
+  const hasDesc = val("product_description").length >= 20;
+  const hasIcp = val("icp_hypothesis").length >= 15;
+  const hasCompetitors = state.competitors.length >= 2;
+  const helper = document.getElementById("step1-helper");
+  if (hasName && hasDesc && hasIcp && hasCompetitors) {
+    helper.textContent = "Ready to continue";
+    helper.style.color = "var(--accent)";
+  } else {
+    helper.textContent = "Fill in name, description, ICP, and 2+ competitors";
+    helper.style.color = "";
+  }
+}
+
+// ========== Competitors ==========
+document.getElementById("competitor_input").addEventListener("keypress", (e) => {
+  if (e.key === "Enter") { e.preventDefault(); addCompetitor(); }
+});
+
+function addCompetitor() {
+  const input = document.getElementById("competitor_input");
+  const v = input.value.trim();
+  if (!v) return;
+  if (state.competitors.length >= 5) { showError("Maximum 5 competitors"); return; }
+  if (state.competitors.some(c => c.toLowerCase() === v.toLowerCase())) { input.value = ""; return; }
+  state.competitors.push(v);
+  input.value = "";
+  renderCompetitors();
+  updateStep1Helper();
+}
+
+function removeCompetitor(i) {
+  state.competitors.splice(i, 1);
+  renderCompetitors();
+  updateStep1Helper();
+}
+
+function renderCompetitors() {
+  const el = document.getElementById("competitor_chips");
+  el.innerHTML = state.competitors.map((c, i) =>
+    `<div class="chip">${escapeHtml(c)}<span class="remove" onclick="removeCompetitor(${i})">×</span></div>`
+  ).join("");
+}
+
+// ========== Goals ==========
+document.querySelectorAll(".goal").forEach(el => {
+  el.addEventListener("click", () => {
+    const v = el.dataset.value;
+    if (state.goals.has(v)) state.goals.delete(v);
+    else state.goals.add(v);
+    el.classList.toggle("selected");
+    updateStep3Helper();
+  });
+});
+
+function updateStep3Helper() {
+  const helper = document.getElementById("step3-helper");
+  if (state.goals.size >= 1) {
+    helper.textContent = `${state.goals.size} goal(s) selected`;
+    helper.style.color = "var(--accent)";
+  } else {
+    helper.textContent = "Select at least one goal";
+    helper.style.color = "";
+  }
+}
+
+// ========== File upload ==========
+const dz = document.getElementById("dropzone");
+const fileInput = document.getElementById("file_input");
+
+["dragover", "dragenter"].forEach(evt => {
+  dz.addEventListener(evt, (e) => { e.preventDefault(); dz.classList.add("drag-over"); });
+});
+["dragleave", "drop"].forEach(evt => {
+  dz.addEventListener(evt, (e) => { e.preventDefault(); dz.classList.remove("drag-over"); });
+});
+
+dz.addEventListener("drop", (e) => {
+  const files = Array.from(e.dataTransfer.files);
+  addFiles(files);
+});
+
+fileInput.addEventListener("change", (e) => {
+  addFiles(Array.from(e.target.files));
+  e.target.value = "";
+});
+
+const ALLOWED_EXT = ["pdf", "docx", "txt", "md", "vtt", "srt"];
+
+function addFiles(files) {
+  files.forEach(f => {
+    const ext = f.name.split(".").pop().toLowerCase();
+    if (!ALLOWED_EXT.includes(ext)) {
+      showError(`Skipped "${f.name}" — unsupported file type`);
+      return;
+    }
+    if (state.files.some(x => x.name === f.name && x.size === f.size)) return;
+    state.files.push({ file: f, name: f.name, size: f.size });
+  });
+  renderFiles();
+}
+
+function removeFile(i) {
+  state.files.splice(i, 1);
+  renderFiles();
+}
+
+function renderFiles() {
+  const list = document.getElementById("file_list");
+  const helper = document.getElementById("file-helper");
+  if (state.files.length === 0) {
+    list.innerHTML = "";
+    helper.textContent = "No files added yet";
+    helper.style.color = "";
+    return;
+  }
+  helper.textContent = `${state.files.length} file(s) queued`;
+  helper.style.color = "var(--accent)";
+  list.innerHTML = state.files.map((f, i) => `
+    <div class="file-item">
+      <div>
+        <span class="name">${escapeHtml(f.name)}</span>
+        <span class="size">${formatSize(f.size)}</span>
+      </div>
+      <span class="remove" onclick="removeFile(${i})">×</span>
+    </div>
+  `).join("");
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+  return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+}
+
+// ========== Review ==========
+function renderReview() {
+  document.getElementById("review-product").textContent = val("product_name");
+  document.getElementById("review-desc").textContent = val("product_description");
+  document.getElementById("review-icp").textContent = val("icp_hypothesis");
+  document.getElementById("review-competitors").textContent =
+    state.competitors.join(", ");
+
+  const geo = val("target_geography");
+  const geoEl = document.getElementById("review-geo");
+  geoEl.textContent = geo || "Not specified";
+  geoEl.classList.toggle("dim", !geo);
+
+  const filesEl = document.getElementById("review-files");
+  if (state.files.length === 0) {
+    filesEl.textContent = "No transcripts uploaded";
+    filesEl.classList.add("dim");
+  } else {
+    filesEl.textContent = state.files.map(f => f.name).join(", ");
+    filesEl.classList.remove("dim");
+  }
+
+  const goalsLabels = {
+    test_ad_creative: "Test ad creative",
+    test_messaging: "Test messaging",
+    test_product_ideas: "Test product ideas",
+    general_research: "General research",
+    build_sales_collateral: "Build sales collateral",
+  };
+  document.getElementById("review-goals").textContent =
+    Array.from(state.goals).map(g => goalsLabels[g]).join(", ");
+}
+
+// ========== Submit ==========
+async function submitIntake() {
+  const btn = document.getElementById("submit-btn");
+  btn.disabled = true;
+  btn.textContent = "Saving…";
+  clearError();
+
+  const fd = new FormData();
+  fd.append("product_name", val("product_name"));
+  fd.append("product_description", val("product_description"));
+  fd.append("icp_hypothesis", val("icp_hypothesis"));
+  fd.append("target_geography", val("target_geography"));
+  fd.append("competitors", JSON.stringify(state.competitors));
+  fd.append("research_goals", JSON.stringify(Array.from(state.goals)));
+  state.files.forEach(f => fd.append("transcripts", f.file));
+
+  try {
+    const r = await fetch("/api/intake", { method: "POST", body: fd });
+    const data = await r.json();
+    if (!r.ok) {
+      showError(data.error || "Something went wrong");
+      btn.disabled = false;
+      btn.textContent = "Save intake";
+      return;
+    }
+
+    document.querySelectorAll(".step-panel").forEach(p => p.classList.remove("active"));
+    document.querySelector(".stepper").style.display = "none";
+    document.getElementById("success-screen").style.display = "block";
+    document.getElementById("success-id").textContent = data.intake_id;
+    if (data.transcript_count > 0) {
+      document.getElementById("success-stats").textContent =
+        `Parsed ${data.transcript_count} transcript(s) with ${data.turn_count} turns.`;
+    }
+  } catch (e) {
+    showError("Network error: " + e.message);
+    btn.disabled = false;
+    btn.textContent = "Save intake";
+  }
+}
+
+// ========== Utilities ==========
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+  }[c]));
+}
+
+updateStep1Helper();
+</script>
+</body>
+</html>
